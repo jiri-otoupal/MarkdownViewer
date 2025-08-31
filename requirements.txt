@@ -1,0 +1,17 @@
+# Markdown Viewer Dependencies
+# Python 3.10+ required
+
+# GUI Framework
+PySide6>=6.7.0
+
+# Markdown processing
+Markdown>=3.5.0
+
+# Syntax highlighting
+Pygments>=2.16.0
+
+# HTML sanitization
+bleach>=6.0.0
+
+# Additional useful packages for development
+typing-extensions>=4.8.0
