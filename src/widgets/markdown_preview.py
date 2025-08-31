@@ -5,9 +5,9 @@ Markdown preview widget using QTextBrowser with zoom controls.
 import logging
 from typing import Optional
 
-from PySide6.QtWidgets import QTextBrowser, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, QLabel
-from PySide6.QtCore import Signal, Qt, QUrl, QTimer
-from PySide6.QtGui import QFont, QKeySequence, QAction, QDesktopServices, QTextOption
+from PySide6.QtCore import Signal, Qt, QTimer
+from PySide6.QtGui import QFont, QTextOption
+from PySide6.QtWidgets import QTextEdit, QWidget
 
 from ..utils.markdown_renderer import MarkdownRenderer
 from ..utils.text_cleaner import clean_html
@@ -15,7 +15,7 @@ from ..utils.text_cleaner import clean_html
 logger = logging.getLogger(__name__)
 
 
-class MarkdownPreview(QTextBrowser):
+class MarkdownPreview(QTextEdit):
     """
     A Markdown preview widget with zoom controls and HTML rendering.
     """
@@ -58,9 +58,27 @@ class MarkdownPreview(QTextBrowser):
         """Set up the preview widget properties."""
         # Enable HTML rendering
         self.setReadOnly(True)
-        
-        # Disable paragraph markers and other visual aids
-        self.document().setDefaultStyleSheet("")
+
+        # Set document stylesheet to override defaults for code blocks only
+        self.document().setDefaultStyleSheet("""
+            pre, .codehilite {
+                background-color: #161b22 !important;
+                background-image: none !important;
+                line-height: 0.9 !important;
+                white-space: pre !important;
+                display: block !important;
+                margin: 16px 0 !important;
+                padding: 16px !important;
+            }
+            pre *, .codehilite * {
+                background-color: transparent !important;
+                background-image: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                line-height: inherit !important;
+                display: inline !important;
+            }
+        """)
         
         # Set text options to not show whitespace
         option = QTextOption()
@@ -68,10 +86,25 @@ class MarkdownPreview(QTextBrowser):
         # Actually, we want to DISABLE these flags, so we set empty flags
         option.setFlags(QTextOption.Flag(0))
         self.document().setDefaultTextOption(option)
-        
-        # Enable links
-        self.setOpenExternalLinks(False)  # We'll handle link clicks manually
-        self.anchorClicked.connect(self._handle_link_click)
+
+        # Disable QTextBrowser's default alternating background and selection
+        self.setStyleSheet("""
+            QTextBrowser {
+                alternate-background-color: transparent;
+                background-color: #1e1e1e;
+                selection-background-color: #264f78;
+                selection-color: #ffffff;
+            }
+            QTextBrowser::item {
+                background-color: transparent;
+            }
+            QTextBrowser::item:alternate {
+                background-color: transparent;
+            }
+        """)
+
+        # QTextEdit doesn't have anchorClicked signal, so we'll handle links differently
+        # Links will still be clickable through the HTML rendering
         
         # Set initial content (simple ASCII to avoid encoding issues)
         initial_content = "# Welcome to Markdown Viewer\n\nStart editing to see the preview here."
@@ -98,24 +131,7 @@ class MarkdownPreview(QTextBrowser):
                 break
         
         self.setFont(font)
-    
-    def _handle_link_click(self, url: QUrl) -> None:
-        """
-        Handle clicks on links in the preview.
-        
-        Args:
-            url: The clicked URL
-        """
-        url_string = url.toString()
-        
-        # Handle internal anchors (table of contents links)
-        if url_string.startswith('#'):
-            # Scroll to anchor
-            self.scrollToAnchor(url_string[1:])
-        else:
-            # Open external links in default browser
-            QDesktopServices.openUrl(url)
-    
+
     def set_markdown_content(self, markdown_text: str, immediate: bool = False) -> None:
         """
         Set the Markdown content to be rendered.

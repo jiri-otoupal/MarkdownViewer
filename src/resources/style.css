@@ -109,11 +109,16 @@ pre {
     padding: 16px;
     overflow: auto;
     font-size: 85%;
-    line-height: 1.45;
-    background-color: #161b22;
+    line-height: 0.9;
+    background-color: #161b22 !important;
     border: 1px solid #30363d;
     border-radius: 8px;
     margin-bottom: 16px;
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    white-space: pre;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
 }
 
 pre code {
@@ -123,9 +128,70 @@ pre code {
     overflow: visible;
     line-height: inherit;
     word-wrap: normal;
-    background-color: transparent;
+    background-color: transparent !important;
     border: 0;
     color: #e6edf3;
+}
+
+/* Aggressive code block styling to override QTextEdit defaults */
+pre, pre *, .codehilite, .codehilite *,
+div.codehilite, div.codehilite *,
+pre code, pre span, .codehilite code, .codehilite span {
+    background-color: #161b22 !important;
+    background-image: none !important;
+    background: #161b22 !important;
+}
+
+/* Override any alternating row colors for code blocks */
+pre .codehilite,
+.codehilite pre,
+.codehilite,
+div.codehilite {
+    background-color: #161b22 !important;
+    background-image: none !important;
+    background: #161b22 !important;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 16px 0;
+    display: block !important;
+    line-height: 0.9;
+    white-space: pre;
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+
+/* Remove any zebra striping or alternating colors */
+pre *:nth-child(odd),
+pre *:nth-child(even),
+.codehilite *:nth-child(odd),
+.codehilite *:nth-child(even),
+div.codehilite *:nth-child(odd),
+div.codehilite *:nth-child(even) {
+    background-color: #161b22 !important;
+    background-image: none !important;
+    background: #161b22 !important;
+}
+
+/* Ensure syntax highlighting spans don't have alternating backgrounds */
+.codehilite .hll,
+.codehilite .c,
+.codehilite .err,
+.codehilite .k,
+.codehilite .o,
+.codehilite .ch,
+.codehilite .cm,
+.codehilite .cp,
+.codehilite .cpf,
+.codehilite .c1,
+.codehilite .cs,
+.codehilite span,
+pre span,
+code span {
+    background-color: transparent !important;
+    background-image: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: inherit !important;
+    display: inline !important;
 }
 
 /* Tables */

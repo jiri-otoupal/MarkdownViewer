@@ -5,14 +5,13 @@ Markdown Viewer - A PySide6 desktop application for viewing and editing Markdown
 This is the main entry point for the application.
 """
 
-import sys
 import logging
+import sys
 from pathlib import Path
-from typing import Optional
 
-from PySide6.QtWidgets import QApplication
-from PySide6.QtCore import Qt, QDir
+from PySide6.QtCore import Qt
 from PySide6.QtGui import QFont, QIcon
+from PySide6.QtWidgets import QApplication
 
 from src.main_window import MainWindow
 from src.utils.logging_config import setup_logging
@@ -29,11 +28,11 @@ def setup_application() -> QApplication:
     QApplication.setHighDpiScaleFactorRoundingPolicy(
         Qt.HighDpiScaleFactorRoundingPolicy.PassThrough
     )
+
+    # Enable emoji rendering (must be set before creating QApplication)
+    QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseDesktopOpenGL, True)
     
     app = QApplication(sys.argv)
-    
-    # Enable emoji rendering
-    app.setAttribute(Qt.ApplicationAttribute.AA_UseDesktopOpenGL, True)
     
     # Set application properties
     app.setApplicationName("Markdown Viewer")

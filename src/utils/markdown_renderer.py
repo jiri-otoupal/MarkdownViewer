@@ -3,13 +3,12 @@ Markdown rendering utilities for the Markdown Viewer application.
 """
 
 import logging
+import re
 from pathlib import Path
 from typing import Optional
 
-import markdown
-from markdown.extensions import codehilite, fenced_code, tables, toc
 import bleach
-from pygments.formatters import HtmlFormatter
+import markdown
 
 from .text_cleaner import clean_text, clean_html
 
@@ -118,6 +117,9 @@ class MarkdownRenderer:
             
             # Convert Markdown to HTML
             html_content = self._markdown_processor.convert(cleaned_text)
+
+            # Fix code block styling by adding inline styles
+            html_content = self._fix_code_block_styling(html_content)
             
             # Sanitize if requested
             if sanitize:
@@ -130,7 +132,40 @@ class MarkdownRenderer:
             logger.exception("Error rendering Markdown: %s", e)
             error_html = f"<p><strong>Error rendering Markdown:</strong> {str(e)}</p>"
             return self._create_html_document(error_html)
-    
+
+    def _fix_code_block_styling(self, html: str) -> str:
+        """
+        Fix code block styling by adding inline styles to override defaults.
+        
+        Args:
+            html: HTML content to fix
+            
+        Returns:
+            HTML with fixed code block styling
+        """
+        # Add inline styles to pre tags
+        html = re.sub(
+            r'<pre([^>]*)>',
+            r'<pre\1 style="background-color: #161b22 !important; background-image: none !important; background: #161b22 !important; padding: 16px; border-radius: 8px; border: 1px solid #30363d; margin: 16px 0; display: block; line-height: 0.9; white-space: pre; font-family: Consolas, Monaco, monospace;">',
+            html
+        )
+
+        # Add inline styles to codehilite divs
+        html = re.sub(
+            r'<div class="codehilite"([^>]*)>',
+            r'<div class="codehilite"\1 style="background-color: #161b22 !important; background-image: none !important; background: #161b22 !important; padding: 16px; border-radius: 8px; border: 1px solid #30363d; margin: 16px 0; display: block; line-height: 0.9; white-space: pre; font-family: Consolas, Monaco, monospace;">',
+            html
+        )
+
+        # Add inline styles to code tags inside pre
+        html = re.sub(
+            r'(<pre[^>]*>.*?)<code([^>]*)>',
+            r'\1<code\2 style="background-color: transparent !important; background-image: none !important; background: transparent !important; color: #e6edf3; line-height: 0.9; white-space: pre;">',
+            html,
+            flags=re.DOTALL
+        )
+
+        return html
 
     
     def _sanitize_html(self, html: str) -> str:

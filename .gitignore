@@ -1,2 +1,4 @@
 /dist/
 /.venv/
+/MarkdownViewer.exe
+/logs/markdown_viewer.log
